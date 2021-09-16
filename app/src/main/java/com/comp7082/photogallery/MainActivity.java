@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
             System.out.print(index);
             displayPhoto(photos.get(index));
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
+            //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     public void previousPhoto(View v) {
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
             System.out.print(index);
             displayPhoto(photos.get(index));
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
+            //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     private void displayPhoto(String path) {
@@ -149,12 +149,6 @@ public class MainActivity extends AppCompatActivity {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
-//            File file = new File(Environment.getExternalStorageDirectory()
-//                    .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
-//            File[] fList = file.listFiles();
-//            String backgroundImageName = String.valueOf(mImageView.setTag());
-//            Log.i(TAG, backgroundImageName);
-//            photos.add(backgroundImageName);
         }
     }
 }
