@@ -71,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
             if (index < (photos.size() - 1)) {
                 index++;
             }
-
-            System.out.print(index);
+            Log.i(TAG, "Current Index: " + index + "File Name: " + photos.get(index));
             displayPhoto(photos.get(index));
             //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             if (index > 0) {
                 index--;
             }
-            System.out.print(index);
+            Log.i(TAG, "Current Index: " + index + "File Name: " + photos.get(index));
             displayPhoto(photos.get(index));
             //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
@@ -101,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
             et.setText(attr[1]);
             tv.setText(attr[2]);
         }
+        TextView mTextView = (TextView) findViewById(R.id.fileNameList);
+        mTextView.setText(photos.get(index));
     }
     private File createImageFile() throws IOException {
 // Create an image file name
@@ -150,5 +151,14 @@ public class MainActivity extends AppCompatActivity {
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
         }
+    }
+
+    public void printFileList() {
+        StringBuilder fileStringBuilder = new StringBuilder();
+        for(String s : photos){
+            fileStringBuilder.append(s + "\n");
+        }
+        TextView mTextView = (TextView) findViewById(R.id.fileNameList);
+        mTextView.setText(fileStringBuilder.toString());
     }
 }
