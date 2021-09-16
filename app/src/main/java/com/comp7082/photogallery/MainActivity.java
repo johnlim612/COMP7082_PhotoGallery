@@ -1,51 +1,78 @@
 package com.comp7082.photogallery;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.ActivityNotFoundException;
+import androidx.appcompat.app.AppCompatActivity; import androidx.core.content.FileProvider;
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.Button;
+import android.graphics.BitmapFactory;
+import android.net.Uri; import android.os.Bundle; import android.os.Environment;
+import android.provider.MediaStore; import android.view.View; import android.widget.EditText;
+import android.widget.ImageView; import android.widget.TextView;
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat; import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-
     static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    private static final String TAG = "MainActivity";
-
+    private static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
+    String mCurrentPhotoPath;
+    private ArrayList<String> photos = null;
+    private int index = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+        if (photos.size() == 0) {
+            displayPhoto(null);
+        } else {
+            displayPhoto(photos.get(index));
+        }
+    }
+    public void takePhoto(View v) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
 
-        final Button button = findViewById(R.id.button_id);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v){
-                dispatchTakePictureIntent();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
             }
-        });
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this, "com.comp7082.photogallery.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
+        File file = new File(Environment.getExternalStorageDirectory()
+                .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
+        ArrayList<String> photos = new ArrayList<>();
+        File[] fList = file.listFiles();
+        if (fList != null) {
+            for (File f : fList) {
+                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= Objects.requireNonNull(startTimestamp).getTime()
+                        && f.lastModified() <= endTimestamp.getTime())
+                ) && (keywords.equals("") || f.getPath().contains(keywords)))
+                    photos.add(f.getPath());
+            }
+        }
+        return photos;
     }
 
-<<<<<<< Updated upstream
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }   catch(ActivityNotFoundException e){
-            Log.e(TAG, "Error");
-=======
     public void nextPhoto(View v) {
         if (photos.size() > 0) {
             if (index < (photos.size() - 1)) {
                 index++;
             }
-            Log.i(TAG, "Current file at index: " + index + " | " + photos.get(index));
+
             System.out.print(index);
             displayPhoto(photos.get(index));
-            //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     public void previousPhoto(View v) {
@@ -53,10 +80,10 @@ public class MainActivity extends AppCompatActivity {
             if (index > 0) {
                 index--;
             }
-            Log.i(TAG, "Current file at index: " + index + " | " + photos.get(index));
             System.out.print(index);
+
             displayPhoto(photos.get(index));
-            //updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     private void displayPhoto(String path) {
@@ -121,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
->>>>>>> Stashed changes
         }
     }
 }

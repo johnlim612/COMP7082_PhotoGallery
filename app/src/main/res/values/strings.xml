@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Photo Gallery</string>
+    <string name="snap">snap</string>
+    <string name="next">next</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="keywords">Keywords:</string>
+    <string name="cancel">Cancel</string>
+    <string name="go">Go</string>
+    <string name="search">search</string>
+    <string name="prev">prev</string>
 </resources>
