@@ -4,18 +4,20 @@ import androidx.appcompat.app.AppCompatActivity; import androidx.core.content.Fi
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri; import android.os.Bundle; import android.os.Environment;
-import android.provider.MediaStore; import android.view.View; import android.widget.EditText;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View; import android.widget.EditText;
 import android.widget.ImageView; import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat; import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int SEARCH_ACTIVITY_REQUEST_CODE = 2;
+    private static final int SEARCH_ACTIVITY_REQUEST_CODE = 3;
     String mCurrentPhotoPath;
     private ArrayList<String> photos = null;
     private int index = 0;
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= Objects.requireNonNull(startTimestamp).getTime()
+                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
                         && f.lastModified() <= endTimestamp.getTime())
                 ) && (keywords.equals("") || f.getPath().contains(keywords)))
                     photos.add(f.getPath());
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                 index--;
             }
             System.out.print(index);
-
             displayPhoto(photos.get(index));
             updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
@@ -148,6 +149,12 @@ public class MainActivity extends AppCompatActivity {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+//            File file = new File(Environment.getExternalStorageDirectory()
+//                    .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
+//            File[] fList = file.listFiles();
+//            String backgroundImageName = String.valueOf(mImageView.setTag());
+//            Log.i(TAG, backgroundImageName);
+//            photos.add(backgroundImageName);
         }
     }
 }
