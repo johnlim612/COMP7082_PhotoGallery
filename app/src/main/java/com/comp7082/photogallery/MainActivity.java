@@ -67,23 +67,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void nextPhoto(View v) {
         if (photos.size() > 0) {
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString(), index);
             if (index < (photos.size() - 1)) {
                 index++;
             }
-
-            System.out.print(index);
             displayPhoto(photos.get(index));
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     public void previousPhoto(View v) {
         if (photos.size() > 0) {
+            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString(), index);
             if (index > 0) {
                 index--;
             }
-            System.out.print(index);
             displayPhoto(photos.get(index));
-            updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString());
         }
     }
     private void displayPhoto(String path) {
@@ -110,18 +107,21 @@ public class MainActivity extends AppCompatActivity {
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
-    private void updatePhoto(String path, String caption) {
+
+    private void updatePhoto(String path, String caption, int selectedIndex) {
         String[] attr = path.split("_");
         if (attr.length >= 3) {
-            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + ".jpg");
+            String newName = attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + ".jpg";
+            File to = new File(newName);
             File from = new File(path);
-            from.renameTo(to);
+            if (from.renameTo(to)) {
+                photos.set(selectedIndex, newName);
+            }
         }
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        */
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
