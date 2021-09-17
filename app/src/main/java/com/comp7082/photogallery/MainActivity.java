@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat; import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int SEARCH_ACTIVITY_REQUEST_CODE = 3;
     String mCurrentPhotoPath;
@@ -53,17 +52,17 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
         File file = new File(Environment.getExternalStorageDirectory()
                 .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
-        ArrayList<String> photos = new ArrayList<>();
+        ArrayList<String> newPhotos = new ArrayList<>();
         File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
                 if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
                         && f.lastModified() <= endTimestamp.getTime())
                 ) && (keywords.equals("") || f.getPath().contains(keywords)))
-                    photos.add(f.getPath());
+                    newPhotos.add(f.getPath());
             }
         }
-        return photos;
+        return newPhotos;
     }
 
     public void nextPhoto(View v) {
@@ -107,14 +106,14 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "_caption_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg",storageDir);
+        File image = new File(storageDir, imageFileName + ".jpg");
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
     private void updatePhoto(String path, String caption) {
         String[] attr = path.split("_");
         if (attr.length >= 3) {
-            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3]);
+            File to = new File(attr[0] + "_" + caption + "_" + attr[2] + "_" + attr[3] + "_" + ".jpg");
             File from = new File(path);
             from.renameTo(to);
         }
@@ -122,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        /*
         if (requestCode == SEARCH_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
@@ -145,16 +145,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        */
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
-//            File file = new File(Environment.getExternalStorageDirectory()
-//                    .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
-//            File[] fList = file.listFiles();
-//            String backgroundImageName = String.valueOf(mImageView.setTag());
-//            Log.i(TAG, backgroundImageName);
-//            photos.add(backgroundImageName);
         }
     }
 }
