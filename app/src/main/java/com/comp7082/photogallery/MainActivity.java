@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
             displayPhoto(photos.get(index));
         }
     }
+    public void searchPhoto(View v){
+        Intent intent = new Intent(this, SearchActivity.class);
+        startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
+    }
     private void displayPhoto(String path) {
         ImageView iv = (ImageView) findViewById(R.id.ivGallery);
         TextView tv = (TextView) findViewById(R.id.tvTimestamp);
