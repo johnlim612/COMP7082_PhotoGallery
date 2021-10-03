@@ -8,7 +8,11 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+
+import android.graphics.Bitmap;
+
 import android.content.pm.PackageManager;
+
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
@@ -16,12 +20,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.io.ByteArrayOutputStream;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -145,6 +150,19 @@ public class MainActivity extends AppCompatActivity {
             Log.e("PictureActivity", e.getLocalizedMessage());
         }
     }
+
+    public void sharePhoto(View v) {
+        Bitmap currentPhoto = BitmapFactory.decodeFile(photos.get(index));
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        currentPhoto.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), currentPhoto, "photo", null);
+        Uri currentImage = Uri.parse(path);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, currentImage);
+        shareIntent.setType("image/jpg");
+        startActivity(Intent.createChooser(shareIntent, "Image"));
+   }
 
     public String[] getGeo(String absolutePath) {
         try {
