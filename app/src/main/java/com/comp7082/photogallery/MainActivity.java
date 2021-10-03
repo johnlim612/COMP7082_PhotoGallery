@@ -1,20 +1,40 @@
 package com.comp7082.photogallery;
 
-import androidx.appcompat.app.AppCompatActivity; import androidx.core.content.FileProvider;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+
 import android.graphics.Bitmap;
+
+import android.content.pm.PackageManager;
+
 import android.graphics.BitmapFactory;
-import android.net.Uri; import android.os.Bundle; import android.os.Environment;
+import androidx.exifinterface.media.ExifInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View; import android.widget.EditText;
-import android.widget.ImageView; import android.widget.TextView;
 
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat; import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,9 +43,22 @@ public class MainActivity extends AppCompatActivity {
     String mCurrentPhotoPath;
     private ArrayList<String> photos = null;
     private int index = 0;
+    private FusedLocationProviderClient fusedLocationClient;
+    private final int locationRequestCode = 1000;
+    private double wayLatitude = 0.0, wayLongitude = 0.0;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //check for location permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    locationRequestCode);
+
+        }
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(R.layout.activity_main);
         photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
         if (photos.size() == 0) {
@@ -34,22 +67,87 @@ public class MainActivity extends AppCompatActivity {
             displayPhoto(photos.get(index));
         }
     }
-    public void takePhoto(View v) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
 
-            } catch (IOException ex) {
-                // Error occurred while creating the File
+    public void takePhoto(View v) {
+        //check for location permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    locationRequestCode);
+
+        } else {
+            // already permission granted
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    //create image file
+                    photoFile = createImageFile();
+
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    // get location here
+                    fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            wayLatitude = location.getLatitude();
+                            wayLongitude = location.getLongitude();
+                            Log.d("Location", "Latitude: " + wayLatitude + ", Longitude: " + wayLongitude);
+                        }
+                        else {
+                            Log.d("Location Error", "Location failed to obtain");
+                        }
+                    });
+
+                    Uri photoURI = FileProvider.getUriForFile(this, "com.comp7082.photogallery.fileprovider", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
             }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this, "com.comp7082.photogallery.fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    public void geoTag(){
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(mCurrentPhotoPath);
+            /*
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, Double.toString(wayLatitude));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, Double.toString(wayLongitude));
+             */
+            Log.d("Checking", "It goes through");
+            Log.d("Latitude Data", Double.toString(wayLatitude));
+
+            int num1Lat = (int)Math.floor(wayLatitude);
+            int num2Lat = (int)Math.floor((wayLatitude - num1Lat) * 60);
+            double num3Lat = (wayLatitude - ((double)num1Lat+((double)num2Lat/60))) * 3600000;
+
+            int num1Lon = (int)Math.floor(wayLongitude);
+            int num2Lon = (int)Math.floor((wayLongitude - num1Lon) * 60);
+            double num3Lon = (wayLongitude - ((double)num1Lon+((double)num2Lon/60))) * 3600000;
+
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, num1Lat+"/1,"+num2Lat+"/1,"+num3Lat+"/1000");
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, num1Lon+"/1,"+num2Lon+"/1,"+num3Lon+"/1000");
+
+
+            if (wayLatitude > 0) {
+                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
+            } else {
+                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
             }
+
+            if (wayLongitude > 0) {
+                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
+            } else {
+                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+            }
+
+            exif.saveAttributes();
+
+        } catch (IOException e) {
+            Log.e("PictureActivity", e.getLocalizedMessage());
         }
     }
 
@@ -64,6 +162,19 @@ public class MainActivity extends AppCompatActivity {
         shareIntent.putExtra(Intent.EXTRA_STREAM, currentImage);
         shareIntent.setType("image/jpg");
         startActivity(Intent.createChooser(shareIntent, "Image"));
+   }
+
+    public String[] getGeo(String absolutePath) {
+        try {
+            ExifInterface exif = new ExifInterface(absolutePath);
+
+            String lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            String lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            return new String[]{lat, lng};
+        } catch (IOException e) {
+            Log.e("PictureActivity", e.getLocalizedMessage());
+        }
+        return null;
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
@@ -89,8 +200,10 @@ public class MainActivity extends AppCompatActivity {
                 index++;
             }
             displayPhoto(photos.get(index));
+
         }
     }
+
     public void previousPhoto(View v) {
         if (photos.size() > 0) {
             updatePhoto(photos.get(index), ((EditText) findViewById(R.id.etCaption)).getText().toString(), index);
@@ -100,10 +213,12 @@ public class MainActivity extends AppCompatActivity {
             displayPhoto(photos.get(index));
         }
     }
-    public void searchPhoto(View v){
+
+    public void searchPhoto(View v) {
         Intent intent = new Intent(this, SearchActivity.class);
         startActivityForResult(intent, SEARCH_ACTIVITY_REQUEST_CODE);
     }
+
     private void displayPhoto(String path) {
         ImageView iv = (ImageView) findViewById(R.id.ivGallery);
         TextView tv = (TextView) findViewById(R.id.tvTimestamp);
@@ -117,16 +232,43 @@ public class MainActivity extends AppCompatActivity {
             String[] attr = path.split("_");
             et.setText(attr[1]);
             tv.setText(attr[2]);
+
+            Log.d("Location", path);
+            String[] location = getGeo(path);
+            Log.d("Location", location[0] + ", " + location[1]);
         }
+
     }
+
     private File createImageFile() throws IOException {
-// Create an image file name
+        // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "_caption_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = new File(storageDir, imageFileName + ".jpg");
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1000) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        wayLatitude = location.getLatitude();
+                        wayLongitude = location.getLongitude();
+                        //Log.d("Location", "Latitude: " + wayLatitude + ", Longitude: " + wayLongitude);
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void updatePhoto(String path, String caption, int selectedIndex) {
@@ -169,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
+            geoTag();
             photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
             displayPhoto(photos.get(index));
         }
