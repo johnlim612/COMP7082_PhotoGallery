@@ -2,12 +2,15 @@ package com.comp7082.photogallery;
 
 import androidx.appcompat.app.AppCompatActivity; import androidx.core.content.FileProvider;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri; import android.os.Bundle; import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View; import android.widget.EditText;
 import android.widget.ImageView; import android.widget.TextView;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -49,6 +52,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void sharePhoto(View v) {
+        Bitmap currentPhoto = BitmapFactory.decodeFile(photos.get(index));
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        currentPhoto.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), currentPhoto, "photo", null);
+        Uri currentImage = Uri.parse(path);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, currentImage);
+        shareIntent.setType("image/jpg");
+        startActivity(Intent.createChooser(shareIntent, "Image"));
+    }
+
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
         File file = new File(Environment.getExternalStorageDirectory()
                 .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");

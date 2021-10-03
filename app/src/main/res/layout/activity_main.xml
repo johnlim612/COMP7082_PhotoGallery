@@ -50,11 +50,16 @@
 
     <Button
         android:id="@+id/btnPrev"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true" android:layout_alignParentBottom="true"
-        android:layout_marginEnd="82dp" android:layout_marginBottom="15dp"
-        android:text="@string/prev" android:onClick="previousPhoto"
-        tools:layout_editor_absoluteX="0dp" tools:layout_editor_absoluteY="622dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="82dp"
+        android:layout_marginBottom="15dp"
+        android:onClick="previousPhoto"
+        android:text="@string/prev"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="622dp" />
 
     <TextView
         android:id="@+id/tvTimestamp"
@@ -96,4 +101,19 @@
         android:layout_marginBottom="18dp" android:text="@string/search"
         android:onClick="searchPhoto"
         tools:layout_editor_absoluteX="291dp" tools:layout_editor_absoluteY="635dp" />
+
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="85dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="560dp"
+        android:layout_marginEnd="269dp"
+        android:layout_marginBottom="86dp"
+        android:onClick="sharePhoto"
+        android:text="@string/share" />
 </RelativeLayout>
