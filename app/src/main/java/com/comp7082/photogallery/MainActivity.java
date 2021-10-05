@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(R.layout.activity_main);
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), 0.0, 0.0, "");
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates, "");
         if (photos.size() == 0) {
             displayPhoto(null);
         } else {
