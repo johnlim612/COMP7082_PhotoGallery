@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private final int locationRequestCode = 1000;
     private double wayLatitude = 0.0, wayLongitude = 0.0;
+    private final Double impossibleCoordinates= 5000.0;
 
 
     @Override
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(R.layout.activity_main);
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), 0.0, 0.0, "");
         if (photos.size() == 0) {
             displayPhoto(null);
         } else {
@@ -112,8 +113,7 @@ public class MainActivity extends AppCompatActivity {
             exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, Double.toString(wayLatitude));
             exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, Double.toString(wayLongitude));
              */
-            Log.d("Checking", "It goes through");
-            Log.d("Latitude Data", Double.toString(wayLatitude));
+            Log.d("Checking", "It goes through getTag()");
 
             int num1Lat = (int)Math.floor(wayLatitude);
             int num2Lat = (int)Math.floor((wayLatitude - num1Lat) * 60);
@@ -146,20 +146,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public String[] getGeo(String absolutePath) {
+    public Float[] getGeo(String absolutePath) {
         try {
             ExifInterface exif = new ExifInterface(absolutePath);
+            GeoDegrees geoDegrees = new GeoDegrees();
+            geoDegrees.geoDegrees(exif);
 
-            String lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-            String lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-            return new String[]{lat, lng};
+            Float lat = geoDegrees.getLatitude();
+            Float lng = geoDegrees.getLongitude();
+            return new Float[]{lat, lng};
         } catch (IOException e) {
             Log.e("PictureActivity", e.getLocalizedMessage());
         }
         return null;
     }
 
-    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, String keywords) {
+    private boolean withinApproxLoc(Double searchDegrees, Float geoDegrees) {
+        double difference = searchDegrees - geoDegrees;
+        Log.d("Search", "Difference in search from retrieved value: " + difference);
+        return !(Math.abs(difference * 100000) > 1);
+    }
+
+    private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, Double latitude, Double longitude, String keywords) {
         File file = new File(Environment.getExternalStorageDirectory()
                 .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
         ArrayList<String> newPhotos = new ArrayList<>();
@@ -167,8 +175,13 @@ public class MainActivity extends AppCompatActivity {
         if (fList != null) {
             for (File f : fList) {
                 if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
-                        && f.lastModified() <= endTimestamp.getTime())
+                        && f.lastModified() <= endTimestamp.getTime())) &&
+                        (((latitude.equals(impossibleCoordinates)
+                        && longitude.equals(impossibleCoordinates))
+                        || (withinApproxLoc(latitude, getGeo(f.getAbsolutePath())[0])
+                        && withinApproxLoc(longitude, getGeo(f.getAbsolutePath())[1])))
                 ) && (keywords.equals("") || f.getPath().contains(keywords)))
+                    Log.d("File Values", Double.toString(getGeo(f.getAbsolutePath())[0]));
                     newPhotos.add(f.getPath());
             }
         }
@@ -215,9 +228,10 @@ public class MainActivity extends AppCompatActivity {
             et.setText(attr[1]);
             tv.setText(attr[2]);
 
-            Log.d("Location", path);
-            String[] location = getGeo(path);
-            Log.d("Location", location[0] + ", " + location[1]);
+            //testing if location is properly obtained
+            /*Log.d("Location", path);
+            Float[] location = getGeo(path);
+            Log.d("ObtainedLocation", location[0] + ", " + location[1]);*/
         }
 
     }
@@ -271,18 +285,24 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 DateFormat format = new SimpleDateFormat("yyyy‐MM‐dd HH:mm:ss");
                 Date startTimestamp , endTimestamp;
+                Double latitude, longitude;
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
+                    latitude = Double.valueOf(data.getStringExtra("Latitude"));
+                    longitude = Double.valueOf(data.getStringExtra("Longitude"));
+
                     startTimestamp = format.parse(from);
                     endTimestamp = format.parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
+                    latitude = impossibleCoordinates;
+                    longitude = impossibleCoordinates;
                 }
                 String keywords = (String) data.getStringExtra("KEYWORDS");
                 index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, keywords);
+                photos = findPhotos(startTimestamp, endTimestamp, latitude, longitude, keywords);
                 if (photos.size() == 0) {
                     displayPhoto(null);
                 } else {
@@ -294,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             ImageView mImageView = (ImageView) findViewById(R.id.ivGallery);
             mImageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
             geoTag();
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), "");
+            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates,  "");
             displayPhoto(photos.get(index));
         }
     }
