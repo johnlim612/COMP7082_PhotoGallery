@@ -25,7 +25,9 @@ public class SearchActivity extends AppCompatActivity {
                     "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(today));
             ((EditText) findViewById(R.id.etToDateTime)).setText(new SimpleDateFormat(
                     "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+            Log.e("Search Error", String.valueOf(ex));
+        }
     }
 
     public void cancel(final View v) {
