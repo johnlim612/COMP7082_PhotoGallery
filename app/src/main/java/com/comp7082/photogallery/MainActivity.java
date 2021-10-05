@@ -9,6 +9,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -160,10 +162,23 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    public void sharePhoto(View v) {
+        Bitmap currentPhoto = BitmapFactory.decodeFile(photos.get(index));
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        currentPhoto.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), currentPhoto, "photo", null);
+        Uri currentImage = Uri.parse(path);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, currentImage);
+        shareIntent.setType("image/jpg");
+        startActivity(Intent.createChooser(shareIntent, "Image"));
+    }
+
     private boolean withinApproxLoc(Double searchDegrees, Float geoDegrees) {
         double difference = searchDegrees - geoDegrees;
         Log.d("Search", "Difference in search from retrieved value: " + difference);
-        return !(Math.abs(difference * 100000) > 1);
+        return !(Math.abs(difference * 100) > 1);
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, Double latitude, Double longitude, String keywords) {
@@ -288,17 +303,23 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-                    latitude = Double.valueOf(data.getStringExtra("Latitude"));
-                    longitude = Double.valueOf(data.getStringExtra("Longitude"));
+
 
                     startTimestamp = format.parse(from);
                     endTimestamp = format.parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
+
+                }
+                try {
+                    latitude = Double.valueOf(data.getStringExtra("Latitude"));
+                    longitude = Double.valueOf(data.getStringExtra("Longitude"));
+                } catch (Exception ex) {
                     latitude = impossibleCoordinates;
                     longitude = impossibleCoordinates;
                 }
+
                 String keywords = (String) data.getStringExtra("KEYWORDS");
                 index = 0;
                 photos = findPhotos(startTimestamp, endTimestamp, latitude, longitude, keywords);
