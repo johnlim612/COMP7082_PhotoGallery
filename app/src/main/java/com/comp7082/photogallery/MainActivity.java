@@ -176,9 +176,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean withinApproxLoc(Double searchDegrees, Float geoDegrees) {
-        double difference = searchDegrees - geoDegrees;
-        Log.d("Search", "Difference in search from retrieved value: " + difference);
-        return !(Math.abs(difference * 100) > 1);
+        if (geoDegrees != null) {
+            double difference = searchDegrees - geoDegrees;
+            Log.d("Search", "Difference in search from retrieved value: " + difference);
+            return !(Math.abs(difference * 100) > 1);
+        }
+        return false;
     }
 
     private ArrayList<String> findPhotos(Date startTimestamp, Date endTimestamp, Double latitude, Double longitude, String keywords) {
