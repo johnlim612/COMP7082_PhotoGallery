@@ -30,15 +30,15 @@ public class ExampleInstrumentedTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
-//    @Test
-//    public void photoSearchTest() {
-//        onView(withId(R.id.btnSearch)).perform(click());
-//        onView(withId(R.id.etFromDateTime)).perform(typeText(""), closeSoftKeyboard());
-//        onView(withId(R.id.etToDateTime)).perform(typeText(""), closeSoftKeyboard());
-//        onView(withId(R.id.etKeywords)).perform(typeText("caption"), closeSoftKeyboard());
-//        onView(withId(R.id.go)).perform(click());
+    @Test
+    public void photoSearchTest() {
+        onView(withId(R.id.btnSearch)).perform(click());
+        onView(withId(R.id.etFromDateTime)).perform(typeText(""), closeSoftKeyboard());
+        onView(withId(R.id.etToDateTime)).perform(typeText(""), closeSoftKeyboard());
+        onView(withId(R.id.etKeywords)).perform(typeText("caption"), closeSoftKeyboard());
+        onView(withId(R.id.go)).perform(click());
 //        onView(withId(R.id.etCaption)).check(matches(withText("caption")));
-//        onView(withId(R.id.btnNext)).perform(click());
-//        onView(withId(R.id.btnPrev)).perform(click());
-//    }
+        onView(withId(R.id.btnNext)).perform(click());
+        onView(withId(R.id.btnPrev)).perform(click());
+    }
 }
