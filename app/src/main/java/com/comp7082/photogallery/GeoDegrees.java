@@ -1,15 +1,16 @@
 package com.comp7082.photogallery;
 
+import android.util.Log;
+
 import androidx.exifinterface.media.ExifInterface;
 
 public class GeoDegrees {
-    private boolean valid = false;
-    public Float Latitude, Longitude;
+    public Double Latitude, Longitude;
 
-    public Float getLatitude() {
+    public Double getLatitude() {
         return Latitude;
     }
-    public Float getLongitude() {
+    public Double getLongitude() {
         return Longitude;
     }
     public void geoDegrees(ExifInterface exif){
@@ -23,27 +24,13 @@ public class GeoDegrees {
                 && (attrLONGITUDE != null)
                 && (attrLONGITUDE_REF !=null))
         {
-            valid = true;
-
-            if(attrLATITUDE_REF.equals("N")){
-                Latitude = convertToDegree(attrLATITUDE);
-            }
-            else{
-                Latitude = 0 - convertToDegree(attrLATITUDE);
-            }
-
-            if(attrLONGITUDE_REF.equals("E")){
-                Longitude = convertToDegree(attrLONGITUDE);
-            }
-            else{
-                Longitude = 0 - convertToDegree(attrLONGITUDE);
-            }
-
+            Latitude = convertToDegree(attrLATITUDE);
+            Longitude = convertToDegree(attrLONGITUDE);
         }
     };
 
-    private Float convertToDegree(String stringDMS){
-        Float result = null;
+    private Double convertToDegree(String stringDMS){
+        Double result = null;
         String[] DMS = stringDMS.split(",", 3);
 
         String[] stringD = DMS[0].split("/", 2);
@@ -61,16 +48,8 @@ public class GeoDegrees {
         Double S1 = Double.valueOf(stringS[1]);
         Double FloatS = S0/S1;
 
-        result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
+        result = FloatD + (FloatM/60) + (FloatS/3600);
 
         return result;
-
-
     };
-
-    public boolean isValid()
-    {
-        return valid;
-    }
-
 }

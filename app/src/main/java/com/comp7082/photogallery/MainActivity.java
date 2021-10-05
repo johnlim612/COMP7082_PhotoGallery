@@ -147,15 +147,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Float[] getGeo(String absolutePath) {
+    public Double[] getGeo(String absolutePath) {
         try {
             ExifInterface exif = new ExifInterface(absolutePath);
             GeoDegrees geoDegrees = new GeoDegrees();
             geoDegrees.geoDegrees(exif);
 
-            Float lat = geoDegrees.getLatitude();
-            Float lng = geoDegrees.getLongitude();
-            return new Float[]{lat, lng};
+            Double lat = geoDegrees.getLatitude();
+            Double lng = geoDegrees.getLongitude();
+            Log.d("Exif", "Lat: "+ lat + " Long: " + lng);
+            return new Double[]{lat, lng};
         } catch (IOException e) {
             Log.e("PictureActivity", e.getLocalizedMessage());
         }
@@ -175,11 +176,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(shareIntent, "Image"));
     }
 
-    private boolean withinApproxLoc(Double searchDegrees, Float geoDegrees) {
+    private boolean withinApproxLoc(Double searchDegrees, Double geoDegrees) {
         if (geoDegrees != null) {
             double difference = searchDegrees - geoDegrees;
+            Log.d("Search", "Search: " + searchDegrees + " Retrieved: " + geoDegrees);
             Log.d("Search", "Difference in search from retrieved value: " + difference);
-            return !(Math.abs(difference * 100) > 1);
+            Log.d("Return Bool", String.valueOf(!(Math.abs(difference) > 1)));
+            return !(Math.abs(difference) > 1);
         }
         return false;
     }
@@ -191,15 +194,16 @@ public class MainActivity extends AppCompatActivity {
         File[] fList = file.listFiles();
         if (fList != null) {
             for (File f : fList) {
-                if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
-                        && f.lastModified() <= endTimestamp.getTime())) &&
-                        (((latitude.equals(impossibleCoordinates)
+                if (((latitude.equals(impossibleCoordinates)
                         && longitude.equals(impossibleCoordinates))
                         || (withinApproxLoc(latitude, getGeo(f.getAbsolutePath())[0])
                         && withinApproxLoc(longitude, getGeo(f.getAbsolutePath())[1])))
-                ) && (keywords.equals("") || f.getPath().contains(keywords)))
-                    Log.d("File Values", Double.toString(getGeo(f.getAbsolutePath())[0]));
-                    newPhotos.add(f.getPath());
+                ) {
+                    if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
+                            && f.lastModified() <= endTimestamp.getTime())) //&&
+                            && (keywords.equals("") || f.getPath().contains(keywords)))
+                        newPhotos.add(f.getPath());
+                }
             }
         }
         return newPhotos;
@@ -244,11 +248,6 @@ public class MainActivity extends AppCompatActivity {
             String[] attr = path.split("_");
             et.setText(attr[1]);
             tv.setText(attr[2]);
-
-            //testing if location is properly obtained
-            /*Log.d("Location", path);
-            Float[] location = getGeo(path);
-            Log.d("ObtainedLocation", location[0] + ", " + location[1]);*/
         }
 
     }
@@ -306,14 +305,11 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String from = (String) data.getStringExtra("STARTTIMESTAMP");
                     String to = (String) data.getStringExtra("ENDTIMESTAMP");
-
-
                     startTimestamp = format.parse(from);
                     endTimestamp = format.parse(to);
                 } catch (Exception ex) {
                     startTimestamp = null;
                     endTimestamp = null;
-
                 }
                 try {
                     latitude = Double.valueOf(data.getStringExtra("Latitude"));
