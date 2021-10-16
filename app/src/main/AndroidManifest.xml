@@ -23,18 +23,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoGallery">
         <activity
-            android:name=".MainActivity"
+            android:name=".View.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <!-- to be confirmed-->
         <service
-            android:name=".MainActivity"
+            android:name=".View.MainActivity"
             android:foregroundServiceType="location"/>
         <activity
             android:name=".SearchActivity" >
