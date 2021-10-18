@@ -24,6 +24,7 @@ import androidx.exifinterface.media.ExifInterface;
 
 import com.comp7082.photogallery.Contract.MainActivityContract;
 import com.comp7082.photogallery.GeoDegrees;
+import com.comp7082.photogallery.PhotosSingleton;
 import com.comp7082.photogallery.Presenter.MainActivityPresenter;
 import com.comp7082.photogallery.R;
 import com.comp7082.photogallery.SearchActivity;
@@ -48,7 +49,8 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
     private final FusedLocationProviderClient fusedLocationClient;
 
     private String mCurrentPhotoPath;
-    private ArrayList<String> photos;
+//    private ArrayList<String> photos;
+    private final PhotosSingleton photosSingleton;
 
     private double wayLatitude, wayLongitude = 0.0;
     private final int locationRequestCode = 1000;
@@ -59,7 +61,10 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
         this.context = context;
         this.activity = activity;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
-        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates, "");
+//        photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates, "");
+        photosSingleton = PhotosSingleton.getSingleton();
+        photosSingleton.setPhotos(findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates, ""));
+        Log.d("Photos: ", photosSingleton.getPhotos().toString());
     }
 
     @Override
@@ -147,8 +152,12 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
                 .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
         ArrayList<String> newPhotos = new ArrayList<>();
         File[] fList = file.listFiles();
+//        Log.d("File List", fList.toString());
         if (fList != null) {
+            int i = 0;
             for (File f : fList) {
+                i++;
+                Log.d("file", f.toString());
                 if (((latitude.equals(impossibleCoordinates)
                         && longitude.equals(impossibleCoordinates))
                         || (withinApproxLoc(latitude, getGeo(f.getAbsolutePath())[0])
@@ -158,21 +167,24 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
                             && f.lastModified() <= endTimestamp.getTime())) //&&
                             && (keywords.equals("") || f.getPath().contains(keywords)))
                         newPhotos.add(f.getPath());
+                    Log.d("File number", Integer.toString(i));
                 }
             }
         }
+//        Log.d("New Photos: ", photosSingleton.getPhotos().toString());
+        Log.d("New Photos: ", newPhotos.toString());
         return newPhotos;
     }
 
     public void nextPhoto(String caption) {
-        updatePhoto(photos.get(index), caption, index);
-        if (index < (photos.size() - 1)) {
+        updatePhoto(photosSingleton.getPhotos().get(index), caption, index);
+        if (index < (photosSingleton.getPhotos().size() - 1)) {
             index++;
         }
     }
 
     public void previousPhoto(String caption) {
-        updatePhoto(photos.get(index), caption, index);
+        updatePhoto(photosSingleton.getPhotos().get(index), caption, index);
         if (index > 0) {
             index--;
         }
@@ -185,7 +197,8 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
             File to = new File(newName);
             File from = new File(path);
             if (from.renameTo(to)) {
-                photos.set(selectedIndex, newName);
+//                photos.set(selectedIndex, newName);
+                photosSingleton.renamePhoto(selectedIndex, newName);
             }
         }
     }
@@ -199,7 +212,7 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
         Log.d("Location", "Latitude: " + wayLatitude + ", Longitude: " + wayLongitude);
     }
     public ArrayList<String> getPhotos() {
-        return photos;
+        return photosSingleton.getPhotos();
     }
     public int getIndex() {
         return index;
@@ -258,7 +271,7 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
     }
 
     public void sharePhoto() {
-        Bitmap currentPhoto = BitmapFactory.decodeFile(photos.get(index));
+        Bitmap currentPhoto = BitmapFactory.decodeFile(photosSingleton.getPhotos().get(index));
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         currentPhoto.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getApplicationContext().getContentResolver(), currentPhoto, "photo", null);
@@ -301,11 +314,13 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
 
                 String keywords = (String) data.getStringExtra("KEYWORDS");
                 index = 0;
-                photos = findPhotos(startTimestamp, endTimestamp, latitude, longitude, keywords);
-                if (photos.size() == 0) {
+//                photos = findPhotos(startTimestamp, endTimestamp, latitude, longitude, keywords);
+                photosSingleton.setPhotos(findPhotos(startTimestamp, endTimestamp, latitude, longitude, keywords));
+                Log.d("Size", photosSingleton.getPhotos().toString());
+                if (photosSingleton.getPhotos().size() == 0) {
                     return null;
                 } else {
-                    return photos.get(index);
+                    return photosSingleton.getPhotos().get(index);
                 }
             }
         }
@@ -313,8 +328,10 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
             ImageView mImageView = image;
             mImageView.setImageBitmap(BitmapFactory.decodeFile(getCurrentPhotoPath()));
             geoTag();
-            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates,  "");
-            return photos.get(index);
+//            photos = findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates,  "");
+            photosSingleton.setPhotos(findPhotos(new Date(Long.MIN_VALUE), new Date(), impossibleCoordinates, impossibleCoordinates,  ""));
+            Log.d("Size 2", photosSingleton.getPhotos().toString());
+            return photosSingleton.getPhotos().get(index);
         }
         return null;
     }
