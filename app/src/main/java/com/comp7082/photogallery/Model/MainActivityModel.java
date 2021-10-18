@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class MainActivityModel extends AppCompatActivity implements MainActivityContract.Model {
@@ -152,10 +153,13 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
                 .getAbsolutePath(), "/Android/data/com.comp7082.photogallery/files/Pictures");
         ArrayList<String> newPhotos = new ArrayList<>();
         File[] fList = file.listFiles();
+
 //        Log.d("File List", fList.toString());
         if (fList != null) {
+            ArrayList<File> fileList = new ArrayList<>();
+            fileList.addAll(Arrays.asList(fList));
             int i = 0;
-            for (File f : fList) {
+            /*for (File f : fList) {
                 i++;
                 Log.d("file", f.toString());
                 if (((latitude.equals(impossibleCoordinates)
@@ -169,7 +173,22 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
                         newPhotos.add(f.getPath());
                     Log.d("File number", Integer.toString(i));
                 }
-            }
+            }*/
+            fileList.forEach((f) -> {
+                //i++;
+                Log.d("file", f.toString());
+                if (((latitude.equals(impossibleCoordinates)
+                        && longitude.equals(impossibleCoordinates))
+                        || (withinApproxLoc(latitude, getGeo(f.getAbsolutePath())[0])
+                        && withinApproxLoc(longitude, getGeo(f.getAbsolutePath())[1])))
+                ) {
+                    if (((startTimestamp == null && endTimestamp == null) || (f.lastModified() >= startTimestamp.getTime()
+                            && f.lastModified() <= endTimestamp.getTime())) //&&
+                            && (keywords.equals("") || f.getPath().contains(keywords)))
+                        newPhotos.add(f.getPath());
+                    //Log.d("File number", Integer.toString(i));
+                }
+            });
         }
 //        Log.d("New Photos: ", photosSingleton.getPhotos().toString());
         Log.d("New Photos: ", newPhotos.toString());
