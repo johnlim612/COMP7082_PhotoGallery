@@ -2,6 +2,7 @@ package com.comp7082.photogallery;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent; import android.os.Bundle;
+import android.util.Log;
 import android.view.View; import android.widget.EditText;
 import java.text.DateFormat; import java.text.SimpleDateFormat;
 import java.util.Calendar; import java.util.Date;
@@ -24,8 +25,11 @@ public class SearchActivity extends AppCompatActivity {
                     "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(today));
             ((EditText) findViewById(R.id.etToDateTime)).setText(new SimpleDateFormat(
                     "yyyy‐MM‐dd HH:mm:ss", Locale.getDefault()).format(tomorrow));
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+            Log.e("Search Error", String.valueOf(ex));
+        }
     }
+
     public void cancel(final View v) {
         finish();
     }
@@ -33,9 +37,13 @@ public class SearchActivity extends AppCompatActivity {
         Intent i = new Intent();
         EditText from = (EditText) findViewById(R.id.etFromDateTime);
         EditText to = (EditText) findViewById(R.id.etToDateTime);
+        EditText latitude = (EditText) findViewById(R.id.etLatitude);
+        EditText longitude =(EditText) findViewById(R.id.etLongitude);
         EditText keywords = (EditText) findViewById(R.id.etKeywords);
         i.putExtra("STARTTIMESTAMP", from.getText() != null ? from.getText().toString() : "");
         i.putExtra("ENDTIMESTAMP", to.getText() != null ? to.getText().toString() : "");
+        i.putExtra("Latitude", latitude.getText() != null ? latitude.getText().toString() : "");
+        i.putExtra("Longitude", longitude.getText() != null ? longitude.getText().toString() : "");
         i.putExtra("KEYWORDS", keywords.getText() != null ? keywords.getText().toString() : "");
         setResult(RESULT_OK, i);
         finish();

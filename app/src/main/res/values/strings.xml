@@ -9,4 +9,7 @@
     <string name="go">Go</string>
     <string name="search">search</string>
     <string name="prev">prev</string>
+    <string name="share">Share Image</string>
+    <string name="longitude">Longitude:</string>
+    <string name="latitude">Latitude:</string>
 </resources>

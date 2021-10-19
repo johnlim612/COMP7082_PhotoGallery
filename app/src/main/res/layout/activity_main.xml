@@ -4,33 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayoutLayout"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".View.MainActivity">
 
     <ImageView
         android:id="@+id/ivGallery"
         android:layout_width="356dp"
         android:layout_height="265dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="27dp"
-        android:layout_marginEnd="26dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="39dp"
-        android:tag="something"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_foreground" />
+        app:srcCompat="@drawable/ic_launcher_foreground"
+        android:tag="something"/>
 
     <Button
         android:id="@+id/snap"
         android:layout_width="wrap_content"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="41dp"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="121dp"
         android:onClick="takePhoto"
         android:text="@string/snap"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -45,10 +42,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="14dp"
-        android:layout_marginBottom="134dp"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="200dp"
         android:onClick="nextPhoto"
-        android:text="@string/next" />
+        android:text="@string/next"
+        app:layout_constraintBottom_toTopOf="@+id/btnSearch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/snap"
+        app:layout_constraintTop_toBottomOf="@+id/tvTimestamp" />
 
     <Button
         android:id="@+id/btnPrev"
@@ -56,8 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="134dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="200dp"
         android:onClick="previousPhoto"
         android:text="@string/prev"
         tools:layout_editor_absoluteX="0dp"
@@ -102,19 +103,23 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="34dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="121dp"
+        android:onClick="searchPhoto"
         android:text="@string/search"
         tools:layout_editor_absoluteX="291dp"
         tools:layout_editor_absoluteY="635dp" />
 
-    <TextView
-        android:id="@+id/fileNameList"
-        android:layout_width="356dp"
-        android:layout_height="81dp"
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="188dp"
-        android:text="TextView" />
-
+        android:layout_marginStart="130dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginBottom="49dp"
+        android:onClick="sharePhoto"
+        android:text="@string/share" />
 </RelativeLayout>

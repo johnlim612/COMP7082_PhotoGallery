@@ -20,12 +20,70 @@
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_alignParentTop="true" android:layout_alignStart="@+id/tvFromDateTime"
         android:layout_marginTop="98dp" android:textSize="24sp" />
+
     <EditText
-        android:id="@+id/etToDateTime" android:inputType="date"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/tvToDateTime" android:layout_alignParentEnd="true"
-        android:layout_marginEnd="31dp" android:ems="10"
+        android:id="@+id/etToDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvToDateTime"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="2dp"
+        android:ems="10"
+        android:inputType="date"
         android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tvLatitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="182dp"
+        android:text="@string/latitude"
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/etLatitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvLatitude"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="508dp"
+        android:ems="10"
+        android:inputType="numberSigned"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tvLongitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="238dp"
+        android:text="@string/longitude"
+        android:textSize="24sp" />
+
+    <EditText
+        android:id="@+id/etLongitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvLongitude"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="131dp"
+        android:layout_marginTop="226dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="452dp"
+        android:ems="10"
+        android:inputType="numberSigned"
+        android:textSize="24sp" />
+
     <TextView
         android:id="@+id/tvKeywords" android:text="@string/keywords"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
