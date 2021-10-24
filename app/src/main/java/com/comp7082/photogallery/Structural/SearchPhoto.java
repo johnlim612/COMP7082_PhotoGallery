@@ -23,8 +23,8 @@ public class SearchPhoto {
         File[] fList = file.listFiles();
 
         if (fList != null) {
-            ArrayList<File> fileList = new ArrayList<>();
-            fileList.addAll(Arrays.asList(fList));
+            ArrayList<File> fileList = new ArrayList<>(Arrays.asList(fList));
+//            fileList.addAll(Arrays.asList(fList));
             int i = 0;
             fileList.forEach((f) -> {
                 Log.d("file", f.toString());

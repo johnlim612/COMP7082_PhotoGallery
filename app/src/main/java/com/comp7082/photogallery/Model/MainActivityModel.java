@@ -156,8 +156,7 @@ public class MainActivityModel extends AppCompatActivity implements MainActivity
 
 //        Log.d("File List", fList.toString());
         if (fList != null) {
-            ArrayList<File> fileList = new ArrayList<>();
-            fileList.addAll(Arrays.asList(fList));
+            ArrayList<File> fileList = new ArrayList<>(Arrays.asList(fList));
             int i = 0;
             /*for (File f : fList) {
                 i++;
